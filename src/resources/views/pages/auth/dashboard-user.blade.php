@@ -29,6 +29,10 @@
                     </div>
                 </div>
 
+                <div class="mt-5">
+                    <x-user.nav />
+                </div>
+
                 @if (session('status'))
                     <div class="mt-4 rounded-2xl bg-green-50 px-4 py-3 text-sm text-green-700">
                         {{ session('status') }}

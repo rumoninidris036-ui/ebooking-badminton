@@ -11,6 +11,12 @@ Saat ini pemisahan dashboard sudah dibenarkan menjadi:
 
 Artinya, dashboard user tidak lagi tercampur dengan dashboard operasional admin/owner.
 
+Pembaruan terbaru:
+
+- route bersama seperti `Schedules`, `Bookings`, `Reviews`, `Notifications`, `Reports`, dan `Profile Settings` sekarang juga sudah dipisahkan berdasarkan role
+- jika role adalah `user`, halaman-halaman tersebut tidak lagi memakai dashboard admin/owner
+- jika role adalah `admin` atau `owner`, halaman-halaman tersebut tetap memakai unified operations dashboard
+
 ## Status Saat Ini
 
 ### Area User
@@ -21,8 +27,15 @@ Bagian berikut sudah berjalan dan tetap memakai alur user:
 - login tunggal
 - register
 - halaman booking
-- riwayat booking
+- riwayat booking versi user
 - dashboard user
+- schedules versi user
+- reviews versi user
+- notifications versi user
+- reports versi user
+- profile settings versi user
+
+Semua halaman user di atas sekarang tetap berada dalam pengalaman yang lebih mobile-first dan user-friendly, tidak dilempar ke dashboard operasional admin/owner.
 
 ### Area Admin dan Owner
 
@@ -74,12 +87,13 @@ Pengecekan yang sudah dijalankan:
 - `npm run build`
 - `docker compose exec app php artisan test`
 - smoke test khusus untuk dashboard admin/owner
+- smoke test tambahan untuk memastikan route bersama tetap masuk ke halaman khusus user saat role = `user`
 
 Hasil:
 
 - build frontend berhasil
 - seluruh test berhasil
-- total test lulus: `19 passed`
+- total test lulus: `20 passed`
 
 ## Smoke Test Tambahan
 
@@ -109,6 +123,16 @@ Test ini memverifikasi bahwa route berikut bisa diakses:
 - admin monitoring
 - admin settings
 
+Test ini juga memverifikasi bahwa role `user` tetap masuk ke halaman user-friendly untuk:
+
+- dashboard
+- bookings
+- schedules
+- reviews
+- notifications
+- reports
+- profile
+
 ## Yang Sudah Berfungsi
 
 - pemisahan dashboard user dan dashboard admin/owner
@@ -117,6 +141,7 @@ Test ini memverifikasi bahwa route berikut bisa diakses:
 - struktur role-based navigation
 - statistik dashboard
 - halaman operasional utama
+- halaman route bersama versi user
 - build asset frontend
 - test otomatis project
 
@@ -159,6 +184,13 @@ Jadi kesimpulannya:
 ### Dashboard User
 
 - `src/resources/views/pages/auth/dashboard-user.blade.php`
+- `src/resources/views/components/user/nav.blade.php`
+- `src/resources/views/pages/bookings/index-user.blade.php`
+- `src/resources/views/pages/operations/user-schedules.blade.php`
+- `src/resources/views/pages/operations/user-reviews.blade.php`
+- `src/resources/views/pages/operations/user-notifications.blade.php`
+- `src/resources/views/pages/operations/user-reports.blade.php`
+- `src/resources/views/pages/operations/user-profile.blade.php`
 
 ### Dashboard Admin/Owner
 
@@ -174,6 +206,7 @@ Jadi kesimpulannya:
 Status akhir saat ini:
 
 - dashboard user sudah kembali ke jalur yang benar
+- halaman-halaman turunan user juga sudah dipisahkan dari dashboard admin/owner
 - dashboard admin dan owner sudah dipisahkan ke area operasional tersendiri
 - dashboard admin/owner sudah bisa dipakai untuk navigasi dan monitoring dasar
 - sistem belum 100% selesai untuk fitur lanjutan seperti settings, transaksi penuh, dan payment gateway

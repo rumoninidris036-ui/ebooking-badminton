@@ -148,4 +148,59 @@ class OperationsDashboardSmokeTest extends TestCase
                 ->assertOk();
         }
     }
+
+    public function test_user_is_kept_inside_user_friendly_pages_for_shared_routes(): void
+    {
+        $user = User::factory()->create();
+        $court = Court::factory()->create();
+
+        $booking = Booking::factory()->create([
+            'user_id' => $user->id,
+            'court_id' => $court->id,
+            'status' => 'finished',
+        ]);
+
+        Review::query()->create([
+            'user_id' => $user->id,
+            'court_id' => $court->id,
+            'rating' => 5,
+            'comment' => 'Mantap',
+        ]);
+
+        UserNotification::query()->create([
+            'user_id' => $user->id,
+            'type' => 'booking',
+            'title' => 'Booking update',
+            'message' => 'Booking Anda sudah selesai.',
+            'channel' => 'in_app',
+            'is_read' => false,
+            'created_at' => now(),
+        ]);
+
+        Recommendation::query()->create([
+            'user_id' => $user->id,
+            'court_id' => $court->id,
+            'similarity_score' => 90.1,
+            'created_at' => now(),
+        ]);
+
+        $routes = [
+            'dashboard',
+            'bookings.index',
+            'operations.schedules',
+            'operations.reviews',
+            'operations.notifications',
+            'operations.reports',
+            'operations.profile',
+        ];
+
+        foreach ($routes as $route) {
+            $this->actingAs($user)
+                ->get(route($route))
+                ->assertOk()
+                ->assertDontSee('Operations Console');
+        }
+
+        $this->assertEquals('finished', $booking->status);
+    }
 }

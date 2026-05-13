@@ -20,6 +20,19 @@ class OperationsPageController extends Controller
     public function schedules(Request $request): View
     {
         $user = $request->user();
+
+        if ($user->role === 'user') {
+            return view('pages.operations.user-schedules', [
+                'user' => $user,
+                'upcomingBookings' => $this->visibleBookingsQuery($user)
+                    ->with(['court:id,name,location'])
+                    ->whereDate('booking_date', '>=', today())
+                    ->orderBy('booking_date')
+                    ->orderBy('start_time')
+                    ->paginate(10),
+            ]);
+        }
+
         $courts = $this->visibleCourtsQuery($user)
             ->with('schedules')
             ->withCount([
@@ -40,6 +53,24 @@ class OperationsPageController extends Controller
     public function reviews(Request $request): View
     {
         $user = $request->user();
+
+        if ($user->role === 'user') {
+            return view('pages.operations.user-reviews', [
+                'user' => $user,
+                'reviews' => Review::query()
+                    ->with(['court:id,name,location'])
+                    ->where('user_id', $user->id)
+                    ->latest()
+                    ->paginate(10),
+                'completedBookings' => Booking::query()
+                    ->with(['court:id,name,location'])
+                    ->where('user_id', $user->id)
+                    ->where('status', 'finished')
+                    ->latest('booking_date')
+                    ->limit(6)
+                    ->get(),
+            ]);
+        }
 
         return view('pages.operations.reviews', [
             'reviews' => Review::query()
@@ -64,6 +95,18 @@ class OperationsPageController extends Controller
 
     public function notifications(Request $request): View
     {
+        if ($request->user()->role === 'user') {
+            return view('pages.operations.user-notifications', [
+                'user' => $request->user(),
+                'notifications' => $request->user()->notifications()->paginate(12),
+                'summary' => [
+                    'unread' => $request->user()->notifications()->where('is_read', false)->count(),
+                    'booking' => $request->user()->notifications()->where('type', 'booking')->count(),
+                    'payment' => $request->user()->notifications()->where('type', 'payment')->count(),
+                ],
+            ]);
+        }
+
         return view('pages.operations.notifications', [
             'notifications' => $request->user()->notifications()->paginate(12),
             'summary' => [
@@ -79,6 +122,28 @@ class OperationsPageController extends Controller
     {
         $user = $request->user();
         $bookings = $this->visibleBookingsQuery($user);
+
+        if ($user->role === 'user') {
+            return view('pages.operations.user-reports', [
+                'user' => $user,
+                'summary' => [
+                    'total_bookings' => (clone $bookings)->count(),
+                    'finished_bookings' => (clone $bookings)->where('status', 'finished')->count(),
+                    'active_bookings' => (clone $bookings)->whereIn('status', ['pending', 'paid'])->count(),
+                    'spending' => (float) (clone $bookings)->whereIn('status', ['paid', 'finished'])->sum('total_price'),
+                ],
+                'statusBreakdown' => collect(['pending', 'paid', 'finished', 'canceled'])->map(fn (string $status) => [
+                    'label' => ucfirst($status),
+                    'count' => (clone $bookings)->where('status', $status)->count(),
+                ]),
+                'recommendedCourts' => Recommendation::query()
+                    ->with(['court:id,name,location'])
+                    ->where('user_id', $user->id)
+                    ->orderByDesc('similarity_score')
+                    ->limit(4)
+                    ->get(),
+            ]);
+        }
 
         return view('pages.operations.reports', [
             'summary' => [
@@ -103,6 +168,19 @@ class OperationsPageController extends Controller
 
     public function profile(Request $request): View
     {
+        if ($request->user()->role === 'user') {
+            return view('pages.operations.user-profile', [
+                'user' => $request->user(),
+                'unreadNotifications' => $request->user()->notifications()->where('is_read', false)->count(),
+                'recentBookings' => Booking::query()
+                    ->with(['court:id,name,location'])
+                    ->where('user_id', $request->user()->id)
+                    ->latest('booking_date')
+                    ->limit(4)
+                    ->get(),
+            ]);
+        }
+
         return view('pages.operations.profile', [
             'user' => $request->user(),
             'unreadNotifications' => $request->user()->notifications()->where('is_read', false)->count(),

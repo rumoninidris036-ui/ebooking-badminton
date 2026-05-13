@@ -22,6 +22,13 @@ class BookingPageController extends Controller
     {
         $user = $request->user();
 
+        if ($user->role === 'user') {
+            return view('pages.bookings.index-user', [
+                'bookings' => $this->bookingService->listForUser($user, 12),
+                'user' => $user,
+            ]);
+        }
+
         return view('pages.bookings.index', [
             'bookings' => $this->bookingService->listForUser($user, 12),
             'user' => $user,
