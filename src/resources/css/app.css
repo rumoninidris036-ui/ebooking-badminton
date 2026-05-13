@@ -1,0 +1,104 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    :root {
+        --color-brand-50: #eefcf5;
+        --color-brand-100: #d9f7e7;
+        --color-brand-200: #b8eed1;
+        --color-brand-300: #87dfb2;
+        --color-brand-500: #1f9d67;
+        --color-brand-600: #157a4f;
+        --color-brand-700: #115f40;
+        --color-ink-950: #0f1720;
+        --color-ink-900: #17212b;
+        --color-ink-700: #3b4754;
+        --color-ink-500: #667281;
+        --color-surface: #f5f7f4;
+        --color-card: rgba(255, 255, 255, 0.88);
+        --shadow-soft: 0 22px 50px -28px rgba(15, 23, 32, 0.28);
+        --shadow-card: 0 24px 70px -30px rgba(21, 122, 79, 0.28);
+    }
+
+    html {
+        scroll-behavior: smooth;
+    }
+
+    body {
+        min-height: 100vh;
+        background:
+            radial-gradient(circle at top left, rgba(31, 157, 103, 0.12), transparent 30%),
+            radial-gradient(circle at top right, rgba(246, 210, 92, 0.18), transparent 22%),
+            linear-gradient(180deg, #f8faf7 0%, #eef3ee 100%);
+        color: var(--color-ink-900);
+    }
+}
+
+@layer components {
+    .shell-container {
+        @apply mx-auto w-full max-w-6xl px-4 sm:px-6;
+    }
+
+    .glass-panel {
+        background: var(--color-card);
+        box-shadow: var(--shadow-soft);
+        @apply rounded-[2rem] border border-white/70 backdrop-blur-sm;
+    }
+
+    .hero-grid {
+        background-image:
+            linear-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+        background-size: 24px 24px;
+    }
+
+    .dashboard-shell {
+        @apply min-h-screen bg-slate-50 text-slate-900;
+    }
+
+    .dashboard-sidebar {
+        @apply bg-slate-900 text-slate-100;
+    }
+
+    .dashboard-card {
+        @apply rounded-2xl border border-slate-200 bg-white shadow-sm;
+    }
+
+    .dashboard-muted {
+        @apply text-sm text-slate-500;
+    }
+
+    .dashboard-table-wrap {
+        @apply overflow-x-auto rounded-2xl border border-slate-200 bg-white shadow-sm;
+    }
+
+    .dashboard-table {
+        @apply min-w-full divide-y divide-slate-200 text-sm;
+    }
+
+    .dashboard-table thead {
+        @apply bg-slate-50 text-left text-xs font-semibold uppercase tracking-[0.18em] text-slate-500;
+    }
+
+    .dashboard-table th,
+    .dashboard-table td {
+        @apply px-4 py-3 align-top;
+    }
+
+    .dashboard-table tbody tr {
+        @apply border-t border-slate-100;
+    }
+
+    .dashboard-filter-chip {
+        @apply inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600;
+    }
+}

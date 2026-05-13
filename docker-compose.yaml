@@ -1,0 +1,73 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    restart: unless-stopped
+    hostname: app
+    working_dir: /var/www
+    volumes:
+      - ./src:/var/www
+    networks:
+      ebooking:
+        aliases:
+          - app
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  nginx:
+    image: nginx:latest
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./src:/var/www
+      - ./docker/nginx:/etc/nginx/conf.d
+    networks:
+      - ebooking
+    depends_on:
+      - app
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_DATABASE:-ebooking}
+      MYSQL_USER: ${DB_USERNAME:-ebooking}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+    ports:
+      - "3306:3306"
+    volumes:
+      - dbdata:/var/lib/mysql
+    networks:
+      - ebooking
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -p$${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - ebooking
+
+volumes:
+  dbdata:
+
+networks:
+  ebooking:
+    driver: bridge
